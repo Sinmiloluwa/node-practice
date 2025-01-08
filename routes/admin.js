@@ -2,7 +2,7 @@ import path from 'path';
 
 import { Router } from 'express';
 
-import { getAddProduct, addProduct, getProducts, getEditProduct } from '../controllers/admin.js';
+import { getAddProduct, addProduct, getProducts, getEditProduct, postEditProduct } from '../controllers/admin.js';
 
 const router = Router();
 
@@ -16,4 +16,7 @@ router.get('/products', getProducts);
 
 router.get('/edit-product/:productId', getEditProduct);
 
+router.post('/edit-product', postEditProduct);
+
+router.post('/delete-product');
 export default router;
