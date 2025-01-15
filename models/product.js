@@ -1,6 +1,7 @@
 import { readFile, writeFile } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
+import Cart from './cart.js';
 
 const __filename = fileURLToPath(import.meta.url); 
 const __dirname = dirname(__filename);  
@@ -61,6 +62,18 @@ export default class Product {
         getProductsFromFile(products => {
             const product = products.find(p => p.id === id);
             cb(product)
+        });
+    }
+
+    static deleteById(id) {
+        getProductsFromFile(products => {
+            const product = product.find(prod => prod.id === id);
+            const updatedProducts = products.filter(prod => prod.id !== id);
+            fs.writeFile(p, JSON.stringify(updatedProducts), err => {
+                if(!err) {
+                Cart.deleteProduct(id, product.price);
+                }
+            })
         });
     }
 }
