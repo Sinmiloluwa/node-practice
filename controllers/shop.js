@@ -2,30 +2,39 @@ import Product from '../models/product.js';
 import Cart from '../models/cart.js';
 
 export function getProducts(req, res, next) {
-   Product.fetchAll((products) => {
-    res.render('shop/product-list', {
-        prods: products,
+   Product.fetchAll()
+    .then(([rows, fieldData]) => {
+      res.render('shop/product-list', {
+        prods: rows,
         pageTitle: 'Shop',
         path: '/',
-        hasProducts: products.length > 0,
+        hasProducts: rows.length > 0,
         activeShop: true,
         productCSS: true
       });
-   });
+    })
+    .catch(err => {
+        console.log(err)
+    });
     
 } 
 
 export function getIndex(req, res, next) {
-  Product.fetchAll((products) => {
-    res.render('shop/index', {
-        prods: products,
+  Product.fetchAll()
+    .then(([rows, fieldData]) => {
+      res.render('shop/index', {
+        prods: rows,
         pageTitle: 'Shop',
         path: '/',
-        hasProducts: products.length > 0,
+        hasProducts: rows.length > 0,
         activeShop: true,
         productCSS: true
       });
-   });
+    })
+    .catch(err => {
+        console.log(err)
+    });
+
 }
 
 export function getCart(req, res, next) {
@@ -58,15 +67,18 @@ export function getCheckout(req, res, next) {
 
 export function viewProduct(req, res, next) {
   const prodId = req.params.productId;
-  const product = Product.findById(prodId, product => {
-    res.render('shop/product-detail', {
-      path: '/products',
-      product: product,
-      pageTitle: product.title,
-      imageUrl: product.imageUrl
+  const product = Product.findById(prodId)
+    .then(([product]) => {
+      res.render('shop/product-detail', {
+        path: '/products',
+        product: product[0],
+        pageTitle: product.title,
+        imageUrl: product.imageUrl
+      })
     })
-  })
-  
+    .catch(err => {
+      console.log(err);
+    }) 
 }
 
 export function addToCart(req, res, next) {
