@@ -5,6 +5,7 @@ import urlencoded from 'body-parser';
 import expressHbs from 'express-handlebars';
 import getErrorPage from './controllers/error.js';
 import { fileURLToPath } from 'url';
+import sequelize from './utils/database.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -24,5 +25,11 @@ app.use('/admin', adminRoutes);
 app.use(shopRoutes);
 
 app.use(getErrorPage)
+
+sequelize.sync().then(result => {
+    // console.log(result)
+}).catch(err => {
+    console.log(err);
+});
 
 app.listen(3000);
