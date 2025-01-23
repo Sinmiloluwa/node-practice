@@ -1,3 +1,4 @@
+import { where } from 'sequelize';
 import Product from '../models/product.js';
 
 export function getAddProduct(req, res, next) {
@@ -16,17 +17,16 @@ export function addProduct(req, res, next) {
     const imageUrl = req.body.imageurl;
     const price = req.body.price;
     const description = req.body.description;
-
-    Product.create({
+    req.user.createProduct({
         title: title,
         imageUrl: imageUrl,
         price: price,
-        description: description
+        description: description,
     }).then(result => {
         console.log(result);
         res.redirect('/admin/products')
     })
-    .catch(err => console,log(err));
+    .catch(err => console.log(err));
 }
 
 export function getEditProduct(req, res, next) {
@@ -36,7 +36,9 @@ export function getEditProduct(req, res, next) {
         res.redirect('/')
     }
     const prodId = req.params.productId;
-    Product.findByPk(prodId).then(product => {
+    req.user.getProducts({where: {id : prodId}})
+    .then(products => {
+        const product = products[0]
         if(!product) {
             return res.redirect('/');
         }
@@ -69,7 +71,7 @@ export function postEditProduct(req, res, next) {
 }
 
 export function getProducts(req, res, next) {
-    Product.findAll()
+    req.user.getProducts()
     .then(products => {
         res.render('admin/products', {
             prods: products,

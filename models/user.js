@@ -1,13 +1,14 @@
 import { Sequelize } from "sequelize";
 import sequelize from "../utils/database.js";
-
-const Cart = sequelize.define('carts', {
+const User = sequelize.define('user', {
     id : {
         type: Sequelize.INTEGER,
         autoIncrement: true,
         allowNull: false,
-        primaryKey: true
-    }
+        primaryKey: true,
+    },
+    name: Sequelize.STRING,
+    email: Sequelize.STRING
 });
 
-export default Cart;
+export default User;
