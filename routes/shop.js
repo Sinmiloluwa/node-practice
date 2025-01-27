@@ -2,7 +2,7 @@ import path from 'path';
 
 import { Router } from 'express';
 
-import { getIndex, getProducts, viewProduct, addToCart, getCart, getCheckout, deleteProductFromCart } from '../controllers/shop.js';
+import { getIndex, getProducts, viewProduct, addToCart, getCart, getCheckout, deleteProductFromCart, postOrder } from '../controllers/shop.js';
 
 const router = Router();
 
@@ -19,5 +19,7 @@ router.get('/cart', getCart);
 router.get('/checkout', getCheckout);
 
 router.post('/cart-delete-item', deleteProductFromCart);
+
+router.post('/create-order', postOrder)
 
 export default router;
