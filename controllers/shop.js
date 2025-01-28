@@ -115,8 +115,10 @@ export function deleteProductFromCart(req, res, next) {
 }
 
 export function postOrder(req, res, next) {
+  let fetchedCart;
   req.user.getCart()
   .then(cart => {
+    fetchedCart = cart;
     return cart.getProducts()
   }).then(products => {
     return req.user.createOrder()
@@ -126,10 +128,27 @@ export function postOrder(req, res, next) {
         return product;
       }));
     }).then(result => {
+      return fetchedCart.setProducts(null);
+    }).then(result => {
       res.redirect('/orders');
     })
     .catch(err => console.log(err))
-    console.log(products)
   })
   .catch(err => console.log(err))
+}
+
+export function getOrders(req, res, next) {
+  req.user
+    .getOrders({include : ['products']})
+    .then((orders) => {
+      res.render('shop/orders', {
+        path: '/orders',
+        pageTitle: 'Your Orders',
+        orders: orders,
+      });
+    })
+    .catch((err) => {
+      console.error('Error fetching orders:', err);
+      next(err);
+    });
 }
