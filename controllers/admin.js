@@ -1,5 +1,8 @@
 import { where } from 'sequelize';
 import Product from '../models/product.js';
+import mongodb from 'mongodb';
+
+const ObjectId = mongodb.ObjectId;
 
 export function getAddProduct(req, res, next) {
     res.render('admin/edit-product', { 
@@ -32,9 +35,8 @@ export function getEditProduct(req, res, next) {
         res.redirect('/')
     }
     const prodId = req.params.productId;
-    req.user.getProducts({where: {id : prodId}})
-    .then(products => {
-        const product = products[0]
+    Product.getOneProduct(prodId)
+    .then(product => {
         if(!product) {
             return res.redirect('/');
         }
@@ -53,21 +55,24 @@ export function postEditProduct(req, res, next) {
     const updatedPrice = req.body.price;
     const updatedImageUrl = req.body.imageUrl;
     const updatedDesc = req.body.description;
-    Product.findByPk(prodId).then(product => {
-        product.title = updatedTitle;
-        product.price = updatedPrice;
-        product.imageUrl = updatedImageUrl;
-        product.description = updatedDesc;
-        returnproduct.save();
-    }).then(result => {
+    
+        const product = new Product
+        (
+            updatedTitle, 
+            updatedPrice, 
+            updatedImageUrl, 
+            updatedDesc, 
+            new ObjectId(prodId)
+        );
+        product.save().then(result => {
         console.log('UPDATED PRODUCT')
-        res.redirect('/admin');
+        res.redirect('/admin/products');
     })
     .catch( err => console.log(err));
 }
 
 export function getProducts(req, res, next) {
-    req.user.getProducts()
+    Product.fetchAll()
     .then(products => {
         res.render('admin/products', {
             prods: products,
@@ -84,10 +89,8 @@ export function getProducts(req, res, next) {
 
 export function postDeleteProduct(req, res, next) {
     const prodId = req.body.productId;
-    Product.findByPk(prodId)
-    .then(product => {
-        return product.destroy();
-    }).then(result => {
+    Product.deleteById(prodId)
+    .then(result => {
         console.log('DESTROYED')
     })
     .catch(err => console.log(err));

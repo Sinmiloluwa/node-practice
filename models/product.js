@@ -2,18 +2,26 @@ import connectDB from "../utils/database.js";
 import mongodb from 'mongodb';
 
 class Product {
-    constructor(title, price, description, imageUrl) {
+    constructor(title, price, description, imageUrl, id) {
         this.title = title;
         this.price = price;
         this.description = description;
         this.imageUrl = imageUrl;
+        this._id = id ? new mongodb.ObjectId(id) : null;
     }
 
     async save() {
         try {
-          const db = await connectDB(); 
-          const result = await db.collection("products").insertOne(this);
-          console.log("✅ Product Saved:", result);
+            const db = await connectDB(); 
+            let result;
+            if (this._id) {
+                result = db.collection('products').updateOne({
+                    _id : new mongodb.ObjectId(`${this._id}`)
+                }, {$set: this});
+            } else {
+                result = await db.collection("products").insertOne(this);
+            }
+          return result;
         } catch (err) {
           console.error("❌ Error saving product:", err);
         }
@@ -36,9 +44,22 @@ class Product {
                 _id: new mongodb.ObjectId(`${prodId}`) 
             }).next();
             return result;
-        } catch {
+        } catch (err) {
             console.error('No products found')
         }
+      }
+
+      static async deleteById(prodId)
+      {
+        try {
+            const db = await connectDB();
+            db.collection('products').deleteOne({
+                _id: new mongodb.ObjectId(prodId)
+            })
+        } catch (error) {
+            console.log(error)
+        }
+         
       }
 }
 
