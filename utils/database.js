@@ -1,8 +1,18 @@
-import { Sequelize } from "sequelize";
+import mongodb from 'mongodb';
+const MongoClient = mongodb.MongoClient;
+const uri = 'mongodb+srv://mofeoluwae:eK6TL4wf1nvQq99M@cluster0.ac0yd.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0';
 
-const sequelize = new Sequelize('node-practice', 'root', '', {
-    dialect: 'mysql', 
-    host: 'localhost'
-});
+const client = new MongoClient(uri);
 
-export default sequelize;
+async function connectDB() {
+    try {
+      await client.connect();
+      console.log("✅ Connected to MongoDB successfully");
+      return client.db("simons");
+    } catch (err) {
+      console.error("❌ MongoDB connection error:", err);
+      process.exit(1);
+    }
+  }
+  
+export default connectDB;
