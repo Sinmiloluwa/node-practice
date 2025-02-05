@@ -20,7 +20,7 @@ export function addProduct(req, res, next) {
     const imageUrl = req.body.imageurl;
     const price = req.body.price;
     const description = req.body.description;
-    const product = new Product(title, price, description, imageUrl);
+    const product = new Product(title, price, description, imageUrl, null, req.user._id);
     product.save().then(result => {
         console.log(result);
         res.redirect('/admin/products')
