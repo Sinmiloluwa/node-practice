@@ -1,5 +1,5 @@
 import connectDB from "../utils/database.js";
-import mongodb from 'mongodb';
+import mongodb, { ObjectId } from 'mongodb';
 
 class User {
     constructor(username, email, cart = { items: [] }, id) {
@@ -46,6 +46,66 @@ async addToCart(product)
     const db = await connectDB();
     return db.collection('users').updateOne({ _id : new mongodb.ObjectId(this._id)}, {$set : {cart: updatedCart}})
 
+}
+
+async getCart() 
+{
+    const db = await connectDB();
+    const prodIds = this.cart.items.map(i => {
+        return i.productId;
+    })
+    return db.collection('products').find({_id : {
+        $in : prodIds
+    }}).toArray().then(products => {
+        return products.map(p => {
+            return {...p, quantity : this.cart.items.find(i => {
+                return i.productId.toString() === p._id.toString()
+            }).quantity
+        }
+        })
+    })
+    return this.cart
+}
+
+async deleteItemFromCart(prodId)
+{
+    const updatedCartItems = this.cart.items.filter(item => {
+        return item.productId.toString() === prodId.toString();
+    })
+
+    const db = await connectDB();
+    return db.collection('users').updateOne(
+        { _id : new ObjectId(this._id)},
+        { $set: { cart: {items: updatedCartItems}}}
+    )
+}
+
+async addOrder() {
+    const db = await connectDB();
+    return this.getCart().then(products => {
+        const order = {
+            items: products,
+            user: {
+                _id: new ObjectId(this._id),
+                name: this.name,
+                email: this.email
+            }
+        }
+
+        return db.collection('orders').insertOne(order)
+    }).then(result => {
+        this.cart = {items: []};
+        return db.collection('users').updateOne(
+            { _id: new ObjectId(this._id)},
+            { $set : {cart: {items : []}}}
+        )
+    })
+}
+
+async getOrders()
+{
+    const db = await connectDB();
+    // db.collection('orders')
 }
 
 static async findById(userId) {

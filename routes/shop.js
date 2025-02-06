@@ -14,13 +14,13 @@ router.get('/product/:productId', viewProduct);
 
 router.post('/add-to-cart', addToCart);
 
-// router.get('/cart', getCart);
+router.get('/cart', getCart);
 
 // router.get('/checkout', getCheckout);
 
-// router.post('/cart-delete-item', deleteProductFromCart);
+router.post('/cart-delete-item', deleteProductFromCart);
 
-// router.post('/create-order', postOrder);
+router.post('/create-order', postOrder);
 
 // router.get('/orders', getOrders);
 

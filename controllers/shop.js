@@ -32,8 +32,6 @@ export function getIndex(req, res, next) {
 
 export function getCart(req, res, next) {
   req.user.getCart()
-  .then(cart => {
-    return cart.getProducts()
     .then(products => {
       res.render('shop/cart', {
         pageTitle: 'Your Cart',
@@ -42,8 +40,6 @@ export function getCart(req, res, next) {
       })
     })
     .catch(err => console.log(err))
-  })
-  .catch(err => console.log(err))
 }
 
 export function getCheckout(req, res, next) {
@@ -74,35 +70,9 @@ export function addToCart(req, res, next) {
   Product.getOneProduct(prodId).then(product => {
     return req.user.addToCart(product)
   }).then(result => {
+    res.redirect('/cart');
     console.log(result);
   })
-//   let fetchedCart;
-//   let newQuantity = 1;
-//   req.user.getCart()
-//   .then(cart => {
-//     fetchedCart = cart;
-//     return cart.getProducts({where: {id : prodId}})
-//   }).then(products => {
-//     let product;
-//     if (products.length > 0) {
-//       product = products[0];
-//     }
-
-//     if (product) {
-//       const oldQuantity = product.cartItem.quantity;
-//       newQuantity = oldQuantity + 1;
-//       return product;
-//     }
-//     return Product.findByPk(prodId)
-//   }).then(product => {
-//     return fetchedCart.addProduct(product, {
-//       through: {quantity: newQuantity}
-//     })
-//   })
-//   .then(() => {
-//     res.redirect('/cart')
-//   })
-//  .catch(err => console.log(err))
 }
 
 export function deleteProductFromCart(req, res, next) {
@@ -121,25 +91,11 @@ export function deleteProductFromCart(req, res, next) {
 
 export function postOrder(req, res, next) {
   let fetchedCart;
-  req.user.getCart()
-  .then(cart => {
-    fetchedCart = cart;
-    return cart.getProducts()
-  }).then(products => {
-    return req.user.createOrder()
-    .then(order => {
-      return order.addProducts(products.map(product => {
-        product.orderItem = {quantity: product.cartItem.quantity}
-        return product;
-      }));
-    }).then(result => {
-      return fetchedCart.setProducts(null);
-    }).then(result => {
+  req.user.addOrder()
+  .then(result => {
       res.redirect('/orders');
     })
     .catch(err => console.log(err))
-  })
-  .catch(err => console.log(err))
 }
 
 export function getOrders(req, res, next) {
