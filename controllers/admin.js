@@ -20,9 +20,14 @@ export function addProduct(req, res, next) {
     const imageUrl = req.body.imageurl;
     const price = req.body.price;
     const description = req.body.description;
-    const product = new Product(title, price, description, imageUrl, null, req.user._id);
-    product.save().then(result => {
-        console.log(result);
+    const product = new Product({
+        title: title,
+        imageUrl: imageUrl,
+        price: price,
+        description: description
+    });
+    product.save()
+    .then(result => {
         res.redirect('/admin/products')
     })
     .catch(err => console.log(err));
@@ -35,7 +40,7 @@ export function getEditProduct(req, res, next) {
         res.redirect('/')
     }
     const prodId = req.params.productId;
-    Product.getOneProduct(prodId)
+    Product.findById(prodId)
     .then(product => {
         if(!product) {
             return res.redirect('/');
@@ -55,16 +60,17 @@ export function postEditProduct(req, res, next) {
     const updatedPrice = req.body.price;
     const updatedImageUrl = req.body.imageUrl;
     const updatedDesc = req.body.description;
-    
-        const product = new Product
-        (
-            updatedTitle, 
-            updatedPrice, 
-            updatedImageUrl, 
-            updatedDesc, 
-            new ObjectId(prodId)
-        );
-        product.save().then(result => {
+
+    console.log(updatedImageUrl);
+
+    Product.findById(prodId).then(product => {
+        product.title = updatedTitle;
+        product.price = updatedPrice;
+        product.description = updatedDesc;
+        product.imageUrl = updatedImageUrl;
+        return product.save()
+    })
+    .then(result => {
         console.log('UPDATED PRODUCT')
         res.redirect('/admin/products');
     })
@@ -72,7 +78,7 @@ export function postEditProduct(req, res, next) {
 }
 
 export function getProducts(req, res, next) {
-    Product.fetchAll()
+    Product.find()
     .then(products => {
         res.render('admin/products', {
             prods: products,
@@ -89,7 +95,7 @@ export function getProducts(req, res, next) {
 
 export function postDeleteProduct(req, res, next) {
     const prodId = req.body.productId;
-    Product.deleteById(prodId)
+    Product.findOneAndDelete(prodId)
     .then(result => {
         console.log('DESTROYED')
     })
