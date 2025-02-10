@@ -1,4 +1,3 @@
-import { where } from 'sequelize';
 import Product from '../models/product.js';
 import mongodb from 'mongodb';
 
@@ -11,20 +10,22 @@ export function getAddProduct(req, res, next) {
       formsCSS: true, 
       productCSS: true, 
       activeAddProduct: true,
-      editing: false 
+      editing: false,
+      isAuthenticated: req.isLoggedIn
   });
 }
 
 export function addProduct(req, res, next) {
     const title = req.body.title;
-    const imageUrl = req.body.imageurl;
+    const imageUrl = req.body.imageUrl;
     const price = req.body.price;
     const description = req.body.description;
     const product = new Product({
         title: title,
         imageUrl: imageUrl,
         price: price,
-        description: description
+        description: description,
+        userId: req.user
     });
     product.save()
     .then(result => {
@@ -49,7 +50,8 @@ export function getEditProduct(req, res, next) {
             pageTitle: 'Edit Product', 
             path: '/admin/edit-product', 
             editing: editMode,
-            product: product
+            product: product,
+            isAuthenticated: req.isLoggedIn
         });
     }).catch(err => console.log(err))
 }
@@ -79,6 +81,7 @@ export function postEditProduct(req, res, next) {
 
 export function getProducts(req, res, next) {
     Product.find()
+    .populate('userId')
     .then(products => {
         res.render('admin/products', {
             prods: products,
@@ -86,7 +89,8 @@ export function getProducts(req, res, next) {
             path: '/',
             hasProducts: products.length > 0,
             activeShop: true,
-            productCSS: true
+            productCSS: true,
+            isAuthenticated: req.isLoggedIn
           });
     })
     .catch(err => console.log(err));

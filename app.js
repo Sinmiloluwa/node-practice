@@ -18,6 +18,7 @@ app.set('views', 'views');
 
 import adminRoutes from './routes/admin.js';
 import shopRoutes from './routes/shop.js';
+import authRoutes from './routes/auth.js';
 import mongoose from 'mongoose';
 
 app.use(urlencoded({ extended: false }));
@@ -32,6 +33,7 @@ app.use((req, res, next) => {
 
 app.use('/admin', adminRoutes);
 app.use(shopRoutes);
+app.use(authRoutes);
 
 app.use(getErrorPage)
 mongoose.connect('mongodb+srv://mofeoluwae:eK6TL4wf1nvQq99M@cluster0.ac0yd.mongodb.net/simons?retryWrites=true&w=majority&appName=Cluster0').then(result => {
