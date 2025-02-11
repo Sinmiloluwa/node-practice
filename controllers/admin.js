@@ -11,7 +11,7 @@ export function getAddProduct(req, res, next) {
       productCSS: true, 
       activeAddProduct: true,
       editing: false,
-      isAuthenticated: req.isLoggedIn
+      isAuthenticated: req.session.isLoggedIn
   });
 }
 
@@ -25,7 +25,7 @@ export function addProduct(req, res, next) {
         imageUrl: imageUrl,
         price: price,
         description: description,
-        userId: req.user
+        userId: req.session.user
     });
     product.save()
     .then(result => {
@@ -51,7 +51,7 @@ export function getEditProduct(req, res, next) {
             path: '/admin/edit-product', 
             editing: editMode,
             product: product,
-            isAuthenticated: req.isLoggedIn
+            isAuthenticated: req.session.isLoggedIn
         });
     }).catch(err => console.log(err))
 }
@@ -90,7 +90,7 @@ export function getProducts(req, res, next) {
             hasProducts: products.length > 0,
             activeShop: true,
             productCSS: true,
-            isAuthenticated: req.isLoggedIn
+            isAuthenticated: req.session.isLoggedIn
           });
     })
     .catch(err => console.log(err));

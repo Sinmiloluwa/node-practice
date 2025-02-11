@@ -28,7 +28,7 @@ export function getIndex(req, res, next) {
       hasProducts: products.length > 0,
       activeShop: true,
       productCSS: true,
-      isAuthenticated: req.isLoggedIn
+      isAuthenticated: req.session.isLoggedIn
     });
   }).catch(err => console.log(err));
 
@@ -42,7 +42,7 @@ export async function getCart(req, res, next) {
         pageTitle: 'Your Cart',
         path: '/cart',
         products: products,
-        isAuthenticated: req.isLoggedIn
+        isAuthenticated: req.session.isLoggedIn
       })
     })
     .catch(err => console.log(err))
@@ -64,7 +64,7 @@ export function viewProduct(req, res, next) {
         product: product,
         pageTitle: product.title,
         imageUrl: product.imageUrl,
-        isAuthenticated: req.isLoggedIn
+        isAuthenticated: req.session.isLoggedIn
       })
     })
     .catch(err => {
@@ -75,7 +75,7 @@ export function viewProduct(req, res, next) {
 export function addToCart(req, res, next) {
   const prodId = req.body.productId;
   Product.findById(prodId).then(product => {
-    return req.user.addToCart(product)
+    return req.session.user.addToCart(product)
   }).then(result => {
     res.redirect('/cart');
     console.log(result);
@@ -103,8 +103,8 @@ export function postOrder(req, res, next) {
 
     const order = new Order({
       user : {
-        name: req.user.name,
-        userId: req.user
+        name: req.session.user.name,
+        userId: req.session.user
       },
       products: products
     
@@ -120,13 +120,13 @@ export function postOrder(req, res, next) {
 }
 
 export function getOrders(req, res, next) {
-  Order.find({"user.userId": req.user._id})
+  Order.find({"user.userId": req.session.user._id})
     .then(orders => {
       res.render('shop/orders', {
         path: '/orders',
         pageTitle: 'Your Orders',
         orders: orders,
-        isAuthenticated: req.isLoggedIn
+        isAuthenticated: req.session.isLoggedIn
       });
     })
     .catch((err) => {
