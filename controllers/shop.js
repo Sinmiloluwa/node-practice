@@ -75,7 +75,7 @@ export function viewProduct(req, res, next) {
 export function addToCart(req, res, next) {
   const prodId = req.body.productId;
   Product.findById(prodId).then(product => {
-    return req.session.user.addToCart(product)
+    return req.user.addToCart(product)
   }).then(result => {
     res.redirect('/cart');
     console.log(result);
@@ -103,8 +103,8 @@ export function postOrder(req, res, next) {
 
     const order = new Order({
       user : {
-        name: req.session.user.name,
-        userId: req.session.user
+        name: req.user.name,
+        userId: req.user
       },
       products: products
     

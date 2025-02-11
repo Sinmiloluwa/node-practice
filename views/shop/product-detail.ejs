@@ -10,7 +10,9 @@
         <hr>
         <div>
             <img src="<%= product.imageurl %>" alt="<%= product.imageurl %>"/>
-           <%-include('../includes/add-to-cart.ejs') %>
+            <% if (isAuthenticated) { %> 
+                <%-include('../includes/add-to-cart.ejs', {product: product}) %>
+                <% } %>
         </div>
     </main>
 </body>
