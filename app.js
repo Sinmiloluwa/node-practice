@@ -6,6 +6,7 @@ import expressHbs from 'express-handlebars';
 import getErrorPage from './controllers/error.js';
 import { fileURLToPath } from 'url';
 import User from './models/user.js';
+import csrf from 'csurf';
 
 
 const __filename = fileURLToPath(import.meta.url);
@@ -37,6 +38,9 @@ app.use(session({
     saveUninitialized: false,
     store: store
 }))
+
+const csrfProtection = csrf({});
+app.use(csrfProtection);
 
 app.use((req, res, next) => {
     if (!req.session.user) {

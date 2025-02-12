@@ -4,6 +4,8 @@ import { Router } from 'express';
 
 import { getIndex, getProducts, viewProduct, addToCart, getCart, getCheckout, deleteProductFromCart, postOrder, getOrders } from '../controllers/shop.js';
 
+import { authenticated } from '../views/middleware/authenticated.js';
+
 const router = Router();
 
 router.get('/', getIndex);
@@ -12,16 +14,16 @@ router.get('/products', getProducts);
 
 router.get('/product/:productId', viewProduct);
 
-router.post('/add-to-cart', addToCart);
+router.post('/add-to-cart', authenticated, addToCart);
 
-router.get('/cart', getCart);
+router.get('/cart', authenticated, getCart);
 
 // router.get('/checkout', getCheckout);
 
-router.post('/cart-delete-item', deleteProductFromCart);
+router.post('/cart-delete-item', authenticated, deleteProductFromCart);
 
-router.post('/create-order', postOrder);
+router.post('/create-order', authenticated, postOrder);
 
-router.get('/orders', getOrders);
+router.get('/orders', authenticated, getOrders);
 
 export default router;
