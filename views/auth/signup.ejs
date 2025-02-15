@@ -9,6 +9,9 @@
     <link rel="stylesheet" href="/css/product.css">
 </head>
 <body>
+    <% if (errorMessage) { %>
+    <p><%= errorMessage %></p>
+    <% } %>
     <%- include('../includes/nav.ejs') %>
     <h1>Signup</h1>
     <form class="login-form" action="/signup" method="POST">

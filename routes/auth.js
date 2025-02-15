@@ -1,6 +1,6 @@
 import express from 'express';
 
-import {getLogin, postLogin, logout, getSignup, postSignup} from '../controllers/auth.js';
+import {getLogin, postLogin, logout, getSignup, postSignup, getReset, postReset, getChangePassword, postChangePassword} from '../controllers/auth.js';
 
 const router = express.Router();
 
@@ -14,5 +14,12 @@ router.get('/signup', getSignup);
 
 router.post('/signup', postSignup);
 
+router.get('/reset', getReset);
+
+router.post('/reset', postReset);
+
+router.get('/change-password/:token', getChangePassword);
+
+router.post('/change-password', postChangePassword);
 
 export default router;

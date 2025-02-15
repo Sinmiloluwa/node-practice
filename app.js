@@ -23,6 +23,8 @@ import authRoutes from './routes/auth.js';
 import mongoose from 'mongoose';
 import session from 'express-session';
 import connectMongoDBSession from "connect-mongodb-session";
+import flash from 'connect-flash';
+
 const MongoDBStore = connectMongoDBSession(session);
 
 const store = new MongoDBStore({
@@ -41,6 +43,7 @@ app.use(session({
 
 const csrfProtection = csrf({});
 app.use(csrfProtection);
+app.use(flash());
 
 app.use((req, res, next) => {
     if (!req.session.user) {

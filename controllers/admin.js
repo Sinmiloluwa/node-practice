@@ -11,8 +11,7 @@ export function getAddProduct(req, res, next) {
       productCSS: true, 
       activeAddProduct: true,
       editing: false,
-      isAuthenticated: req.session.isLoggedIn
-  });
+      });
 }
 
 export function addProduct(req, res, next) {
@@ -51,7 +50,6 @@ export function getEditProduct(req, res, next) {
             path: '/admin/edit-product', 
             editing: editMode,
             product: product,
-            isAuthenticated: req.session.isLoggedIn
         });
     }).catch(err => console.log(err))
 }
@@ -80,7 +78,7 @@ export function postEditProduct(req, res, next) {
 }
 
 export function getProducts(req, res, next) {
-    Product.find()
+    Product.find({userId: req.user._id})
     .populate('userId')
     .then(products => {
         res.render('admin/products', {
@@ -90,7 +88,6 @@ export function getProducts(req, res, next) {
             hasProducts: products.length > 0,
             activeShop: true,
             productCSS: true,
-            isAuthenticated: req.session.isLoggedIn
           });
     })
     .catch(err => console.log(err));
