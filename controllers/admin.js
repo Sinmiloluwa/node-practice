@@ -64,15 +64,20 @@ export function postEditProduct(req, res, next) {
     console.log(updatedImageUrl);
 
     Product.findById(prodId).then(product => {
+        console.log(product);
+        if(product.userId.toString() !== req.user._id.toString()) {
+            req.flash('error', 'You are not authorized to edit this product');
+            return res.redirect('/');
+        }
         product.title = updatedTitle;
         product.price = updatedPrice;
         product.description = updatedDesc;
         product.imageUrl = updatedImageUrl;
         return product.save()
-    })
-    .then(result => {
-        console.log('UPDATED PRODUCT')
-        res.redirect('/admin/products');
+        .then(result => {
+            console.log('UPDATED PRODUCT')
+            res.redirect('/admin/products');
+        })
     })
     .catch( err => console.log(err));
 }
@@ -96,7 +101,7 @@ export function getProducts(req, res, next) {
 
 export function postDeleteProduct(req, res, next) {
     const prodId = req.body.productId;
-    Product.findOneAndDelete(prodId)
+    Product.deleteOne({_id: prodId, userId: req.user._id})
     .then(result => {
         console.log('DESTROYED')
     })

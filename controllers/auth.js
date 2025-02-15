@@ -3,9 +3,6 @@ import User from '../models/user.js';
 import bcrypt from 'bcryptjs';
 import nodemailer from 'nodemailer';
 import crypto from 'crypto';
-import { buffer } from 'stream/consumers';
-import path from 'path';
-import user from '../models/user.js';
 
 const transporter = nodemailer.createTransport({
     host: "sandbox.smtp.mailtrap.io",
@@ -140,7 +137,7 @@ export function postReset(req, res, next) {
                 subject: 'Password reset',
                 html: `
                     <p>You requested a password reset</p>
-                    <p>Click this <a href="http://localhost:3000/reset/${token}">link</a> to set a new password</p>
+                    <p>Click this <a href="http://localhost:3000/change-password/${token}">link</a> to set a new password</p>
                 `
         })
         .catch(err => {
