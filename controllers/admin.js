@@ -1,5 +1,7 @@
 import Product from '../models/product.js';
 import mongodb from 'mongodb';
+import { validationResult } from 'express-validator';
+import { ValidationError } from 'sequelize';
 
 const ObjectId = mongodb.ObjectId;
 
@@ -7,11 +9,10 @@ export function getAddProduct(req, res, next) {
     res.render('admin/edit-product', { 
       pageTitle: 'Add Product', 
       path: '/admin/add-product', 
-      formsCSS: true, 
-      productCSS: true, 
-      activeAddProduct: true,
       editing: false,
-      });
+      hasError: false,
+      errorMessage: null
+    });
 }
 
 export function addProduct(req, res, next) {
@@ -19,6 +20,25 @@ export function addProduct(req, res, next) {
     const imageUrl = req.body.imageUrl;
     const price = req.body.price;
     const description = req.body.description;
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+        console.log(errors.array())
+        return res.status(422).render('admin/edit-product', { 
+            pageTitle: 'Add Product', 
+            path: '/admin/add-product', 
+            editing: false,
+            hasError: true,
+            errorMessage: errors.array()[0].msg,
+            product: {
+                title: title,
+                imageUrl: imageUrl,
+                price: price,
+                description: description
+            }
+        });
+    }
+
     const product = new Product({
         title: title,
         imageUrl: imageUrl,
@@ -30,7 +50,26 @@ export function addProduct(req, res, next) {
     .then(result => {
         res.redirect('/admin/products')
     })
-    .catch(err => console.log(err));
+    .catch(err => {
+        res.redirect('/500');
+        // return res.status(500).render('admin/edit-product', { 
+        //     pageTitle: 'Add Product', 
+        //     path: '/admin/add-product', 
+        //     editing: false,
+        //     hasError: true,
+        //     errorMessage: 'Database operation failed',
+        //     validationError: [],
+        //     product: {
+        //         title: title,
+        //         imageUrl: imageUrl,
+        //         price: price,
+        //         description: description
+        //     }
+        // });
+        const error = new Error('Product creation failed');
+        error.httpStatusCode = 500;
+        return next(error);
+    });
 }
 
 export function getEditProduct(req, res, next) {
@@ -50,8 +89,14 @@ export function getEditProduct(req, res, next) {
             path: '/admin/edit-product', 
             editing: editMode,
             product: product,
+            hasError: true,
+            errorMessage: null,
         });
-    }).catch(err => console.log(err))
+    }).catch(err => {
+        const error = new Error(err);
+        error.httpStatusCode = 500;
+        return next(error);
+    })
 }
 
 export function postEditProduct(req, res, next) {
@@ -60,8 +105,25 @@ export function postEditProduct(req, res, next) {
     const updatedPrice = req.body.price;
     const updatedImageUrl = req.body.imageUrl;
     const updatedDesc = req.body.description;
+    const errors = validationResult(req);
 
-    console.log(updatedImageUrl);
+    if (!errors.isEmpty()) {
+        console.log(errors.array())
+        return res.status(422).render('admin/edit-product', { 
+            pageTitle: 'Edit Product', 
+            path: '/admin/edit-product', 
+            editing: false,
+            hasError: true,
+            errorMessage: errors.array()[0].msg,
+            product: {
+                title: updatedTitle,
+                imageUrl: updatedImageUrl,
+                price: updatedPrice,
+                description: updatedDesc,
+                _id : prodId
+            }
+        });
+    }
 
     Product.findById(prodId).then(product => {
         console.log(product);
@@ -79,7 +141,11 @@ export function postEditProduct(req, res, next) {
             res.redirect('/admin/products');
         })
     })
-    .catch( err => console.log(err));
+    .catch( err => {
+        const error = new Error(err);
+        error.httpStatusCode = 500;
+        return next(error);
+    });
 }
 
 export function getProducts(req, res, next) {

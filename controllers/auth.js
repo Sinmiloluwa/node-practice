@@ -3,6 +3,7 @@ import User from '../models/user.js';
 import bcrypt from 'bcryptjs';
 import nodemailer from 'nodemailer';
 import crypto from 'crypto';
+import { validationResult } from 'express-validator';
 
 const transporter = nodemailer.createTransport({
     host: "sandbox.smtp.mailtrap.io",
@@ -18,19 +19,25 @@ export function getLogin(req, res, next) {
       path: '/login',
       pageTitle: 'Login',
       errorMessage: req.flash('error'),
+      oldInput: {email: '', password: ''},
+      validationErrors: []
 })
 }
 
 export function postLogin(req, res, next) {
     const email = req.body.email;
     const password = req.body.password;
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(422).render('auth/login', {  
+            path: '/login',
+            pageTitle: 'Login',
+            errorMessage: errors.array()[0].msg, 
+            oldInput: {email: email, password: password},
+            validationErrors: [{param: 'email'}, {param: 'password'}]
+        });
+    }
      User.findOne({email : email}).then(user => {
-        console.log(user);
-        if (!user) {
-            console.log('Invalid email or password');
-            req.flash('error', 'Invalid email or password');
-            return res.redirect('/login');
-        }
         bcrypt.compare(password, user.password)
         .then(result => {
             if (!result) {
@@ -58,10 +65,13 @@ export function logout(req, res, next) {
 }
 
 export function getSignup(req, res, next) {
+    console.log(req.flash('error-signup'));
     res.render('auth/signup', {
       path: '/signup',
       pageTitle: 'Signup',
-      errorMessage: req.flash('error'),
+      errorMessage: req.flash('error-signup'),
+      oldInput: {email: '', password: '', username: '', confirmPassword: ''},
+      validationErrors: []
     })
 }
 
@@ -69,13 +79,23 @@ export function postSignup(req, res, next) {
     const email = req.body.email;
     const password = req.body.password;
     const username = req.body.username;
-    User.findOne({email: email})
-    .then(userDoc => {
-        if (userDoc) {
-            req.flash('error', 'Email already exists');
-            return res.redirect('/signup');
-        }
-        return bcrypt.hash(password, 12)
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(422).render('auth/signup', {
+            path: '/signup',
+            pageTitle: 'Signup',
+            errorMessage: errors.array()[0].msg,
+            oldInput: {email: email, password: password, username: username, confirmPassword: req.body.confirmPassword},
+            validationErrors: [{param: 'email'}, {param: 'password'}, {param: 'username'}, {param: 'confirmPassword'}]
+        });
+    }
+    // User.findOne({email: email})
+    // .then(userDoc => {
+    //     if (userDoc) {
+    //         req.flash('error-signup', 'Email already exists');
+    //         return res.redirect('/signup');
+    //     }
+    bcrypt.hash(password, 12)
         .then(hashedPassword => {
             const user = new User({
                 email: email,
@@ -85,7 +105,6 @@ export function postSignup(req, res, next) {
             });
             return user.save();
         })
-    })
     .then(result => {
         res.redirect('/login');
         return transporter.sendMail({

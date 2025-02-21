@@ -3,7 +3,7 @@ import path, { join } from 'path';
 import express from 'express';
 import urlencoded from 'body-parser';
 import expressHbs from 'express-handlebars';
-import getErrorPage from './controllers/error.js';
+import { getErrorPage, getServerError} from './controllers/error.js';
 import { fileURLToPath } from 'url';
 import User from './models/user.js';
 import csrf from 'csurf';
@@ -52,7 +52,9 @@ app.use((req, res, next) => {
     User.findById(req.session.user._id).then(user => {
        req.user = user;
         next();
-    }).catch(err => console.log(err));
+    }).catch(err => {
+        throw new Error(err);
+    });
 })
 app.use((req, res, next) => {
     res.locals.isAuthenticated = req.session.isLoggedIn;
@@ -64,6 +66,11 @@ app.use(shopRoutes);
 app.use(authRoutes);
 
 app.use(getErrorPage)
+app.get('/500', getServerError);
+
+app.use((error, req, res, next) => {
+    res.redirect('/500')
+})
 mongoose.connect('mongodb+srv://mofeoluwae:eK6TL4wf1nvQq99M@cluster0.ac0yd.mongodb.net/simons?retryWrites=true&w=majority&appName=Cluster0').then(result => {
     User.findOne().then(user => {
         if (!user) {

@@ -20,25 +20,28 @@
     </header>
 
     <main>
+        <% if (errorMessage) { %>
+            <p class="error-message"><%= errorMessage %></p>
+        <% } %>
         <form class="product-form" action="/admin/<%= editing ? 'edit-product' : 'add-product' %>
             " method="POST">
             <input type="hidden" name="_csrf" value="<%= csrfToken %>">
             <div class="form-control">
                 <label for="title">Title</label>
-                <input type="text" style="color: black" name="title" id="title" value="<% if (editing) { %>
+                <input type="text" style="color: black" name="title" id="title" value="<% if (editing || hasError) { %>
                     <%= product.title %>
                 <% } %>
                 ">
             </div>
             <div class="form-control">
                 <label for="imageurl">Image URL</label>
-                <input type="text" style="color: black" name="imageUrl" id="imageurl" value="<% if (editing) { %>
+                <input type="text" style="color: black" name="imageUrl" id="imageurl" value="<% if (editing || hasError) { %>
                     <%= product.imageurl %>
                 <% } %>">
             </div>
             <div class="form-control">
                 <label for="price">Price</label>
-                <input type="text" style="color: black" name="price" id="price" value="<% if (editing) { %>
+                <input type="text" style="color: black" name="price" id="price" value="<% if (editing || hasError) { %>
                     <%= product.price %>
                 <% } %>">
             </div>

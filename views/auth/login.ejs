@@ -20,11 +20,11 @@
             <input type="hidden" name="_csrf" value="<%= csrfToken %>">
             <div class="form-control">
                 <label for="email">Email</label>
-                <input type="email" style="color: black" name="email" id="email">
+                <input type="email" style="color: black" name="email" id="email" value="<%= oldInput.email %>" required>
             </div>
             <div class="form-control">
                 <label for="imageurl">Password</label>
-                <input type="password" style="color: black" name="password" id="password">
+                <input type="password" style="color: black" name="password" id="password" value="<%= oldInput.password %>" required>
             </div>
             <button type="submit">Sign in</button>
                     </form>

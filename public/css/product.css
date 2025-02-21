@@ -66,7 +66,7 @@ main {
     border-radius: 2px;
 }
 
-button {
+.button {
     font: inherit;
     border: 1px solid #3e00a1;
     color: #3e00a1;
@@ -75,8 +75,20 @@ button {
     cursor: pointer;
 }
 
-button:hover,
-button:active {
+.button:hover,
+.button:active {
     background-color: #3e00a1;
     color: white;
+}
+.error-message {
+    color: white;
+    background-color: red;
+    padding: 5px;
+    margin: auto;
+    width: 50%;
+    text-align: center;
+}
+
+.error-message:empty {
+    display: none;
 }
