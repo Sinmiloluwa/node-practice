@@ -23,7 +23,7 @@
         <% if (errorMessage) { %>
             <p class="error-message"><%= errorMessage %></p>
         <% } %>
-        <form class="product-form" action="/admin/<%= editing ? 'edit-product' : 'add-product' %>
+        <form class="product-form" action="/admin/<%= editing ? 'edit-product' : 'add-product' " enctype="multipart/form-data">
             " method="POST">
             <input type="hidden" name="_csrf" value="<%= csrfToken %>">
             <div class="form-control">
@@ -34,10 +34,8 @@
                 ">
             </div>
             <div class="form-control">
-                <label for="imageurl">Image URL</label>
-                <input type="text" style="color: black" name="imageUrl" id="imageurl" value="<% if (editing || hasError) { %>
-                    <%= product.imageurl %>
-                <% } %>">
+                <label for="image">Image </label>
+                <input type="file" style="color: black" name="image" id="image"  %>
             </div>
             <div class="form-control">
                 <label for="price">Price</label>

@@ -7,6 +7,7 @@ import { getErrorPage, getServerError} from './controllers/error.js';
 import { fileURLToPath } from 'url';
 import User from './models/user.js';
 import csrf from 'csurf';
+import multer from 'multer';
 
 
 const __filename = fileURLToPath(import.meta.url);
@@ -31,8 +32,25 @@ const store = new MongoDBStore({
     uri: 'mongodb+srv://mofeoluwae:eK6TL4wf1nvQq99M@cluster0.ac0yd.mongodb.net/simons',
     collection: 'sessions',
 });
+const fileStorage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'images')
+    },
+    filename: (req, file, cb) => {
+        cb(null, new Date().toISOString() + '-' + file.originalname)
+    }
+})
+
+const fileFilter = (req, file, cb) => {
+    if (file.mimetype === 'image/png' || file.mimetype === 'image/jpg' || file.mimetype === 'image/jpeg' || file.mimetype === 'image/png') {
+        cb(null, true)
+    } else {
+        cb(null, false)
+    }
+}
 
 app.use(urlencoded({ extended: false }));
+app.use(multer({storage : fileStorage, fileFilter: fileFilter}).single('image'));
 app.use(express.static(join(__dirname, 'public')));
 app.use(session({
     secret: 'my secret', 
@@ -44,6 +62,11 @@ app.use(session({
 const csrfProtection = csrf({});
 app.use(csrfProtection);
 app.use(flash());
+app.use((req, res, next) => {
+    res.locals.isAuthenticated = req.session.isLoggedIn;
+    res.locals.csrfToken = req.csrfToken();
+    next();
+});
 
 app.use((req, res, next) => {
     if (!req.session.user) {
@@ -53,14 +76,11 @@ app.use((req, res, next) => {
        req.user = user;
         next();
     }).catch(err => {
-        throw new Error(err);
+        console.log('err')
+        next(new Error(err))
     });
 })
-app.use((req, res, next) => {
-    res.locals.isAuthenticated = req.session.isLoggedIn;
-    res.locals.csrfToken = req.csrfToken();
-    next();
-});
+
 app.use('/admin', adminRoutes);
 app.use(shopRoutes);
 app.use(authRoutes);
@@ -69,7 +89,11 @@ app.use(getErrorPage)
 app.get('/500', getServerError);
 
 app.use((error, req, res, next) => {
-    res.redirect('/500')
+    res.status(500).render('500', { 
+        pageTitle: 'Server Error',
+        path: '/500',
+        isAuthenticated: req.session.isLoggedIn
+      });
 })
 mongoose.connect('mongodb+srv://mofeoluwae:eK6TL4wf1nvQq99M@cluster0.ac0yd.mongodb.net/simons?retryWrites=true&w=majority&appName=Cluster0').then(result => {
     User.findOne().then(user => {
