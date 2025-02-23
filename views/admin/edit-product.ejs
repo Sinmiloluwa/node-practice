@@ -23,8 +23,8 @@
         <% if (errorMessage) { %>
             <p class="error-message"><%= errorMessage %></p>
         <% } %>
-        <form class="product-form" action="/admin/<%= editing ? 'edit-product' : 'add-product' " enctype="multipart/form-data">
-            " method="POST">
+        <form class="product-form" action="/admin/<%= editing ? 'edit-product' : 'add-product' %>
+            " enctype="multipart/form-data" method="POST">
             <input type="hidden" name="_csrf" value="<%= csrfToken %>">
             <div class="form-control">
                 <label for="title">Title</label>

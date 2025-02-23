@@ -63,7 +63,7 @@ const csrfProtection = csrf({});
 app.use(csrfProtection);
 app.use(flash());
 app.use((req, res, next) => {
-    res.locals.isAuthenticated = req.session.isLoggedIn;
+    res.locals.isAuthenticated = req.session?.isLoggedIn || false;
     res.locals.csrfToken = req.csrfToken();
     next();
 });
