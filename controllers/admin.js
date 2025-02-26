@@ -1,7 +1,7 @@
 import Product from '../models/product.js';
 import mongodb from 'mongodb';
 import { validationResult } from 'express-validator';
-import { ValidationError } from 'sequelize';
+import file from '../utils/file.js';
 
 const ObjectId = mongodb.ObjectId;
 
@@ -48,7 +48,6 @@ export function addProduct(req, res, next) {
             errorMessage: errors.array()[0].msg,
             product: {
                 title: title,
-                imageUrl: image,
                 price: price,
                 description: description
             }
@@ -152,6 +151,7 @@ export function postEditProduct(req, res, next) {
         product.price = updatedPrice;
         product.description = updatedDesc;
         if(image) {
+            file.deleteFile(product.imageUrl);
             product.imageUrl = image.path;
         }
         return product.save()
@@ -186,10 +186,20 @@ export function getProducts(req, res, next) {
 
 export function postDeleteProduct(req, res, next) {
     const prodId = req.body.productId;
-    Product.deleteOne({_id: prodId, userId: req.user._id})
-    .then(result => {
+    Product.findById(prodId).then(product => {
+        if(!product) {
+            return next(new Error('Product not found'))
+        }
+        file.deleteFile(product.imageUrl);
+        return Product.deleteOne({_id: prodId, userId: req.user._id})
+    }).then(result => {
         console.log('DESTROYED')
-    })
-    .catch(err => console.log(err));
-    res.redirect('/admin/products');
+        res.redirect('/admin/products');
+    }).catch(err => {
+        const error = new Error(err);
+        error.httpStatusCode = 500;
+        return next(error);
+    });
+
+    
 }
