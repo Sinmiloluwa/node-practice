@@ -83,7 +83,7 @@ export function addProduct(req, res, next) {
         //         description: description
         //     }
         // });
-        const error = new Error('Product creation failed');
+        const error = new Error('Could not create product');
         error.httpStatusCode = 500;
         return next(error);
     });
