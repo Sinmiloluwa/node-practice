@@ -1,3 +1,36 @@
 <%- include('../includes/head.ejs') %>
 <body>
     <%- include('../includes/nav.ejs') %>
+    <main>
+        <ul>
+            <% products.forEach(product => { %>
+                <li>
+                    <p><%= product.productId.title %> (<%= product.quantity %>)</p>
+                    <form action="/cart-delete-item" method="POST">
+                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                        <input type="hidden" value="<%= product.productId._id %>" name="productId">
+                        <input type="hidden" value="<%= accessCode %>" name="accessCode">
+                        <button class="btn" type="submit">Delete</button>
+                    </form>
+                    </li>
+            <% }) %>
+        </ul>
+        <div>
+            <h2>Total: <%= totalSum %></h2>
+        </div>
+        <div class="centered">
+            <button id="order-btn">Pay now</button>
+            <script src="https://js.paystack.co/v2/inline.js"></script>
+        </div>
+    </main>
+
+    <script>
+        var orderButton = document.getElementById('order-btn');
+        var accessCode = "<%= accessCode %>";
+        orderButton.addEventListener('click', function () {
+            console.log(accessCode);
+            const popup = new PaystackPop()
+            popup.resumeTransaction(accessCode)
+        });
+      
+    </script>

@@ -2,7 +2,7 @@ import path from 'path';
 
 import { Router } from 'express';
 
-import { getIndex, getProducts, viewProduct, addToCart, getCart, getCheckout, deleteProductFromCart, postOrder, getOrders, getInvoice } from '../controllers/shop.js';
+import { getIndex, getProducts, viewProduct, addToCart, getCart, getCheckout, deleteProductFromCart, postOrder, getOrders, getInvoice, paystackPay } from '../controllers/shop.js';
 
 import { authenticated } from '../views/middleware/authenticated.js';
 
@@ -18,7 +18,9 @@ router.post('/add-to-cart', authenticated, addToCart);
 
 router.get('/cart', authenticated, getCart);
 
-// router.get('/checkout', getCheckout);
+router.get('/checkout', authenticated, getCheckout);
+
+router.post('/paystack', authenticated, paystackPay);
 
 router.post('/cart-delete-item', authenticated, deleteProductFromCart);
 

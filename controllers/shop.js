@@ -4,6 +4,7 @@ import fs from 'fs';
 import path from 'path';
 import order from '../models/order.js';
 import PDFDocument from 'pdfkit';
+import https from 'https';
 
 const ITEMS_PER_PAGE = 2;
 
@@ -66,12 +67,81 @@ export async function getCart(req, res, next) {
     .catch(err => console.log(err))
 }
 
-export function getCheckout(req, res, next) {
-  res.render('/shop/checkout', {
-    path: '/checkout',
-    pageTitle: '/Checkout'
-  })
+export async function getCheckout(req, res, next) {
+  try {
+    await req.user.populate('cart.items.productId');
+
+    const products = req.user.cart.items;
+    let total = 0;
+
+    products.forEach(p => {
+      total += p.quantity * p.productId.price;
+    });
+
+    const params = JSON.stringify({
+      email: req.user.email,
+      amount: total * 100,
+    });
+
+    const options = {
+      hostname: 'api.paystack.co',
+      port: 443,
+      path: '/transaction/initialize',
+      method: 'POST',
+      headers: {
+        Authorization: 'Bearer sk_test_4b2',
+        'Content-Type': 'application/json'
+      }
+    };
+
+  
+    const getAccessCode = () => {
+      return new Promise((resolve, reject) => {
+        const paystackRequest = https.request(options, paystackResponse => {
+          let data = '';
+
+          paystackResponse.on('data', chunk => {
+            data += chunk;
+          });
+
+          paystackResponse.on('end', () => {
+            try {
+              const response = JSON.parse(data);
+              resolve(response.data.access_code);
+            } catch (error) {
+              reject('Invalid JSON response from Paystack');
+            }
+          });
+        });
+
+        paystackRequest.on('error', error => {
+          reject(error);
+        });
+
+        paystackRequest.write(params);
+        paystackRequest.end();
+      });
+    };
+
+    const accessCode = await getAccessCode();
+    console.log('Access Code:', accessCode);
+
+    res.render('shop/checkout', {
+      pageTitle: 'Checkout',
+      path: '/checkout',
+      products: products,
+      totalSum: total,
+      accessCode: accessCode,
+      isAuthenticated: req.session.isLoggedIn
+    });
+
+  } catch (err) {
+    console.error(err);
+    next(err);
+  }
 }
+
+
 
 export function viewProduct(req, res, next) {
   const prodId = req.params.productId;
@@ -196,4 +266,9 @@ export function getInvoice(req, res, next) {
   // file.pipe(res);
   }).catch(err => next(err));
   
+}
+
+export function paystackPay(req, res, next) {
+  const orderId = req.body.orderId; 
+  console.log('ok');
 }

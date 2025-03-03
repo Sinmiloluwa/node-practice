@@ -2,7 +2,7 @@ import path from 'path';
 
 import { Router } from 'express';
 
-import { getAddProduct, addProduct, getProducts, getEditProduct, postEditProduct, postDeleteProduct } from '../controllers/admin.js';
+import { getAddProduct, addProduct, getProducts, getEditProduct, postEditProduct, deleteProduct } from '../controllers/admin.js';
 
 import { authenticated } from '../views/middleware/authenticated.js';
 
@@ -36,6 +36,6 @@ router.post('/edit-product', [
     check('description').isLength({min :5, max: 400}).trim()
 ], authenticated, postEditProduct);
 
-router.post('/delete-product', authenticated, postDeleteProduct);
+router.delete('/product/:productId', authenticated, deleteProduct);
 
 export default router;
