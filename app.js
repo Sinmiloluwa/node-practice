@@ -8,6 +8,14 @@ import { fileURLToPath } from 'url';
 import User from './models/user.js';
 import csrf from 'csurf';
 import multer from 'multer';
+import dotenv from 'dotenv';
+import helmet from 'helmet';
+import compression from 'compression';
+import morgan from 'morgan';
+import fs from 'fs';
+import https from 'https';
+
+dotenv.config();
 
 
 const __filename = fileURLToPath(import.meta.url);
@@ -25,6 +33,14 @@ import mongoose from 'mongoose';
 import session from 'express-session';
 import connectMongoDBSession from "connect-mongodb-session";
 import flash from 'connect-flash';
+
+const accessLogStream = fs.createWriteStream(
+    path.join(__dirname, 'access.log'),
+    { flags: 'a' }
+  );
+
+const privateKey = fs.readFileSync('server.key');
+const certificate = fs.readFileSync('server.cert');
 
 const MongoDBStore = connectMongoDBSession(session);
 
@@ -59,6 +75,10 @@ app.use(session({
     saveUninitialized: false,
     store: store
 }))
+
+app.use(helmet());
+app.use(compression());
+app.use(morgan('combined', {stream: accessLogStream}));  
 
 const csrfProtection = csrf({});
 app.use(csrfProtection);
@@ -97,7 +117,7 @@ app.use((error, req, res, next) => {
         isAuthenticated: req.session.isLoggedIn
       });
 })
-mongoose.connect('mongodb+srv://mofeoluwae:eK6TL4wf1nvQq99M@cluster0.ac0yd.mongodb.net/simons?retryWrites=true&w=majority&appName=Cluster0').then(result => {
+mongoose.connect(process.env.MONGO_DATABASE).then(result => {
     User.findOne().then(user => {
         if (!user) {
             const user = new User({
@@ -111,7 +131,8 @@ mongoose.connect('mongodb+srv://mofeoluwae:eK6TL4wf1nvQq99M@cluster0.ac0yd.mongo
         }
     })
     
-    app.listen(3000);
+    // https.createServer({key: privateKey, cert: certificate}, app).listen(process.env.PORT || 3000);
+    app.listen(process.env.PORT || 3000)
 }).catch(err => {
     console.log(err)
 })

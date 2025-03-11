@@ -5,6 +5,8 @@ import path from 'path';
 import order from '../models/order.js';
 import PDFDocument from 'pdfkit';
 import https from 'https';
+import dotenv from 'dotenv';
+dotenv.config();
 
 const ITEMS_PER_PAGE = 2;
 
@@ -89,7 +91,7 @@ export async function getCheckout(req, res, next) {
       path: '/transaction/initialize',
       method: 'POST',
       headers: {
-        Authorization: 'Bearer sk_test_4b2',
+        Authorization: process.env.PAYSTACK_SECRET_KEY,
         'Content-Type': 'application/json'
       }
     };

@@ -1,0 +1,6 @@
+{
+    "env" : {
+        "PAYSTACK_SECRET_KEY" : "sk_test_4b2",
+        "MONGO_DATABASE" : "mongodb+srv://mofeoluwae:eK6TL4wf1nvQq99M@cluster0.ac0yd.mongodb.net/simons?retryWrites=true&w=majority&appName=Cluster0"
+    }
+}
